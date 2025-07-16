@@ -1,9 +1,27 @@
-from rest_framework import serializers
 from .models import (
     User, Student, Lecturer, Department, Course, EnrolledCourse,
     TranscriptRequest, Payment, UserProfile, Notification, AuditLog,
-    Message, DocumentUpload, Event, Feedback, Attendance, GradeAppeal, Schedule
+    Message, DocumentUpload, Event, Feedback, Attendance, GradeAppeal, Schedule, Program, SchoolSettings
 )
+from rest_framework import serializers
+
+class SchoolSettingsSerializer(serializers.ModelSerializer):
+    logo_url = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = SchoolSettings
+        fields = [
+            'id', 'name', 'logo', 'logo_url', 'primary_color', 'secondary_color', 'accent_color',
+            'language', 'grading_scale', 'contact_email', 'address', 'created_at', 'updated_at'
+        ]
+
+    def get_logo_url(self, obj):
+        request = self.context.get('request')
+        if obj.logo and hasattr(obj.logo, 'url'):
+            if request is not None:
+                return request.build_absolute_uri(obj.logo.url)
+            return obj.logo.url
+        return None
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,6 +114,12 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ['id', 'registration_number', 'user', 'department', 'program', 'school', 'level']
+
+# Program Serializer for Admin Program Management
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
+        fields = ['id', 'name_en', 'name_fr', 'type', 'school']
 
 class AttendanceSerializer(serializers.ModelSerializer):
     student = StudentSerializer(read_only=True)

@@ -1,3 +1,21 @@
+# SchoolSettings model for per-school customization
+from django.db import models
+
+class SchoolSettings(models.Model):
+    name = models.CharField(max_length=255, default="University")
+    logo = models.ImageField(upload_to='school_logos/', null=True, blank=True)
+    primary_color = models.CharField(max_length=20, default="#008000")  # Green
+    secondary_color = models.CharField(max_length=20, default="#FFD700")  # Yellow
+    accent_color = models.CharField(max_length=20, default="#FF0000")  # Red
+    language = models.CharField(max_length=10, choices=[('en', 'English'), ('fr', 'French')], default='en')
+    grading_scale = models.CharField(max_length=255, default="A-F")
+    contact_email = models.EmailField(null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
 # Multilingual support
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin

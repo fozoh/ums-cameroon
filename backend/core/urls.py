@@ -1,5 +1,13 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
+    SchoolSettingsView,
+    StudentProgramUpdateView,
+    AdminProgramManagementView,
+    AdminDepartmentManagementView,
+    AdminCourseManagementView,
+    AdminLoginView,
+    AdminUserManagementView,
     # Auth & Token
     LoginView,
     HelloView,
@@ -34,11 +42,29 @@ from .views import (
     # Audit & Logs
     AuditLogListView,
     UserList,
+
+    # Detail views
+    MessageDetailView,
+    EventDetailView,
+    DocumentUploadDetailView,
+    FeedbackDetailView,
 )
 
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 
 urlpatterns = [
+    path('admin/settings/', SchoolSettingsView.as_view(), name='school-settings'),
+    path('student/update-program/', StudentProgramUpdateView.as_view(), name='student-update-program'),
+    path('admin/programs/', AdminProgramManagementView.as_view(), name='admin-program-management'),
+    path('admin/programs/<int:pk>/', AdminProgramManagementView.as_view(), name='admin-program-detail'),
+    # --- Admin Management ---
+    path('admin/departments/', AdminDepartmentManagementView.as_view(), name='admin-department-management'),
+    path('admin/departments/<int:pk>/', AdminDepartmentManagementView.as_view(), name='admin-department-detail'),
+    path('admin/courses/', AdminCourseManagementView.as_view(), name='admin-course-management'),
+    path('admin/courses/<int:pk>/', AdminCourseManagementView.as_view(), name='admin-course-detail'),
+    # --- Admin Portal ---
+    path('admin/login/', AdminLoginView.as_view(), name='admin-login'),
+    path('admin/users/', AdminUserManagementView.as_view(), name='admin-user-management'),
     # 🔐 Authentication
     path('auth/login/', LoginView.as_view(), name='login'),
     path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -66,9 +92,13 @@ urlpatterns = [
     # 💬 Messaging & Content
     path('users/', UserList.as_view(), name='user-list'),
     path('messages/', MessageListCreateView.as_view(), name='message-list-create'),
+    path('messages/<int:pk>/', MessageDetailView.as_view(), name='message-detail'),
     path('documents/', DocumentUploadListCreateView.as_view(), name='document-list-create'),
+    path('documents/<int:pk>/', DocumentUploadDetailView.as_view(), name='document-detail'),
     path('events/', EventListCreateView.as_view(), name='event-list-create'),
+    path('events/<int:pk>/', EventDetailView.as_view(), name='event-detail'),
     path('feedback/', FeedbackListCreateView.as_view(), name='feedback-list-create'),
+    path('feedback/<int:pk>/', FeedbackDetailView.as_view(), name='feedback-detail'),
 
     # 🛎️ Notifications & Audit
     path('notifications/', NotificationListView.as_view(), name='notifications'),

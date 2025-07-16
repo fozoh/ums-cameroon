@@ -10,84 +10,101 @@ class Command(BaseCommand):
         ee_dept, _ = Department.objects.get_or_create(name="Electrical Engineering")
 
 
-        # Create Users
-        student_user, _ = User.objects.get_or_create(email="student1@example.com", role="student", defaults={'first_name': 'John', 'last_name': 'Doe'})
-        lecturer_user, _ = User.objects.get_or_create(email="lecturer1@example.com", role="lecturer", defaults={'first_name': 'Jane', 'last_name': 'Smith'})
-        hod_user, _ = User.objects.get_or_create(email="hod1@example.com", role="hod", defaults={'first_name': 'Robert', 'last_name': 'Brown'})
 
-        # Set default password for all users
-        for user in [student_user, lecturer_user, hod_user]:
+        students = []
+        lecturers = []
+        hods = []
+        for i in range(1, 81):
+            user, _ = User.objects.get_or_create(
+                email=f"student{i}@example.com", role="student",
+                defaults={'first_name': f'Student{i}', 'last_name': f'Lastname{i}'}
+            )
             user.set_password('test1234')
             user.save()
+            reg_num = f"STU{1000+i}"
+            student, _ = Student.objects.get_or_create(
+                registration_number=reg_num,
+                defaults={
+                    'user': user,
+                    'department': cs_dept if i % 2 == 0 else ee_dept,
+                    'level': (i % 3) + 1
+                }
+            )
+            students.append(student)
 
-        # Create Students
-        student1, _ = Student.objects.get_or_create(
-            user=student_user,
-            registration_number="STU1001",
-            department=cs_dept,
-            level=2
-        )
+        for i in range(1, 16):
+            user, _ = User.objects.get_or_create(
+                email=f"lecturer{i}@example.com", role="lecturer",
+                defaults={'first_name': f'Lecturer{i}', 'last_name': f'LecLast{i}'}
+            )
+            user.set_password('test1234')
+            user.save()
+            staff_id = f"LEC{2000+i}"
+            lecturer, _ = Lecturer.objects.get_or_create(
+                staff_id=staff_id,
+                defaults={
+                    'user': user,
+                    'department': cs_dept if i % 2 == 0 else ee_dept
+                }
+            )
+            lecturers.append(lecturer)
 
-        # Create Lecturer
-        lecturer1, _ = Lecturer.objects.get_or_create(
-            user=lecturer_user,
-            staff_id="LEC2001",
-            department=cs_dept
-        )
-
-        hod1, _ = Lecturer.objects.get_or_create(
-            user=hod_user,
-            staff_id="LEC2009",
-            department=cs_dept
-        )
+        for i in range(1, 6):
+            user, _ = User.objects.get_or_create(
+                email=f"hod{i}@example.com", role="hod",
+                defaults={'first_name': f'Hod{i}', 'last_name': f'HodLast{i}'}
+            )
+            user.set_password('test1234')
+            user.save()
+            staff_id = f"HOD{3000+i}"
+            hod, _ = Lecturer.objects.get_or_create(
+                staff_id=staff_id,
+                defaults={
+                    'user': user,
+                    'department': cs_dept if i % 2 == 0 else ee_dept
+                }
+            )
+            hods.append(hod)
 
         # Create Courses
-        course1, _ = Course.objects.get_or_create(
-            code="CS101",
-            name="Introduction to Programming",
-            credits=3,
-            department=cs_dept,
-            lecturer=lecturer1
-        )
-
-        course2, _ = Course.objects.get_or_create(
-            code="CS202",
-            name="Data Structures",
-            credits=4,
-            department=cs_dept,
-            lecturer=lecturer1
-        )
+        courses = []
+        for i in range(1, 11):
+            course, _ = Course.objects.get_or_create(
+                code=f"CS{100+i}",
+                name=f"Course {i}",
+                credits=(i % 5) + 2,
+                department=cs_dept if i % 2 == 0 else ee_dept,
+                lecturer=lecturers[i % len(lecturers)] if lecturers else None
+            )
+            courses.append(course)
 
         # Enroll Students
-        EnrolledCourse.objects.get_or_create(
-            student=student1,
-            course=course1,
-            semester="Sem 1",
-            ca_marks=60,
-            exam_marks=70
-        )
-
-        EnrolledCourse.objects.get_or_create(
-            student=student1,
-            course=course2,
-            semester="Sem 1",
-            ca_marks=45,
-            exam_marks=55
-        )
+        for student in students:
+            for course in courses:
+                if (student.id + course.id) % 3 == 0:
+                    EnrolledCourse.objects.get_or_create(
+                        student=student,
+                        course=course,
+                        semester="Sem 1",
+                        ca_marks=40 + (student.id % 30),
+                        exam_marks=50 + (course.id % 40)
+                    )
 
         # Transcript Requests
-        TranscriptRequest.objects.get_or_create(
-            student=student1,
-            paid=True,
-            approved=True
-        )
+        for student in students[:20]:
+            TranscriptRequest.objects.get_or_create(
+                student=student,
+                paid=True,
+                approved=True
+            )
 
         # Payments
-        Payment.objects.get_or_create(
-            student=student1,
-            amount=50000,
-            reference="PAY1001",
-            method="MTN Mobile Money"
-        )
+        for idx, student in enumerate(students[:30]):
+            Payment.objects.get_or_create(
+                student=student,
+                amount=50000 + idx * 1000,
+                reference=f"PAY{1000+idx}",
+                method="MTN Mobile Money" if idx % 2 == 0 else "Orange Money"
+            )
 
         self.stdout.write(self.style.SUCCESS('✅ Sample data created successfully'))
