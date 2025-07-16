@@ -1,6 +1,34 @@
+# Multilingual support
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
+
+# School model
+class School(models.Model):
+    name_en = models.CharField(max_length=255)
+    name_fr = models.CharField(max_length=255)
+    address_en = models.CharField(max_length=255, blank=True)
+    address_fr = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"{self.name_en} / {self.name_fr}"
+
+# Program model
+class Program(models.Model):
+    PROGRAM_TYPE_CHOICES = (
+        ('hnd', _('HND')),
+        ('degree', _('Degree')),
+        ('masters', _('Masters')),
+        ('phd', _('PhD')),
+        ('certification', _('Certification')),
+    )
+    name_en = models.CharField(max_length=100)
+    name_fr = models.CharField(max_length=100)
+    type = models.CharField(max_length=20, choices=PROGRAM_TYPE_CHOICES)
+    school = models.ForeignKey('School', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name_en} / {self.name_fr} ({self.get_type_display()})"
 # Audit log model
 class AuditLog(models.Model):
     user = models.ForeignKey('User', on_delete=models.SET_NULL, null=True)
@@ -83,9 +111,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
-    registration_number = models.CharField(max_length=20, unique=True)
+    registration_number = models.CharField(max_length=30, unique=True, blank=True)
     department = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True)
+    program = models.ForeignKey('Program', on_delete=models.SET_NULL, null=True)
+    school = models.ForeignKey('School', on_delete=models.SET_NULL, null=True)
     level = models.IntegerField()  # Year of study
+
+    def save(self, *args, **kwargs):
+        # Auto-generate matricule if not set
+        if not self.registration_number and self.department and self.school and self.user:
+            dept_code = self.department.name[:3].upper() if self.department else 'XXX'
+            school_code = self.school.name_en[:3].upper() if self.school else 'SCH'
+            user_id = str(self.user.id).zfill(4)
+            self.registration_number = f"{school_code}-{dept_code}-{user_id}"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.registration_number
@@ -164,3 +203,90 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment: {self.amount} by {self.student.registration_number}"
+
+# Attendance model
+class Attendance(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    date = models.DateField()
+    present = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.student.registration_number} - {self.course.name} - {self.date}"
+
+# Grade Appeal model
+class GradeAppeal(models.Model):
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    reason_en = models.TextField()
+    reason_fr = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('reviewed', 'Reviewed'), ('resolved', 'Resolved')], default='pending')
+    response_en = models.TextField(blank=True)
+    response_fr = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Appeal: {self.student.registration_number} - {self.course.name} - {self.status}"
+
+# Schedule model
+class Schedule(models.Model):
+    course = models.ForeignKey('Course', on_delete=models.CASCADE)
+    program = models.ForeignKey('Program', on_delete=models.CASCADE)
+    school = models.ForeignKey('School', on_delete=models.CASCADE)
+    lecturer = models.ForeignKey('Lecturer', on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=10)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    location_en = models.CharField(max_length=100)
+    location_fr = models.CharField(max_length=100, blank=True)
+
+    def __str__(self):
+        return f"{self.course.name} - {self.day_of_week} {self.start_time}-{self.end_time}"
+
+# Messaging model
+class Message(models.Model):
+    sender = models.ForeignKey('User', on_delete=models.CASCADE, related_name='sent_messages')
+    recipient = models.ForeignKey('User', on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"From {self.sender.email} to {self.recipient.email} at {self.timestamp}"
+
+# Document upload model
+class DocumentUpload(models.Model):
+    uploader = models.ForeignKey('User', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to='documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.title} by {self.uploader.email}"
+
+# Event/Announcement model
+class Event(models.Model):
+    title_en = models.CharField(max_length=255)
+    title_fr = models.CharField(max_length=255)
+    description_en = models.TextField()
+    description_fr = models.TextField(blank=True)
+    date = models.DateField()
+    created_by = models.ForeignKey('User', on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title_en} / {self.title_fr}"
+
+# Feedback/Survey model
+class Feedback(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', on_delete=models.SET_NULL, null=True, blank=True)
+    feedback_en = models.TextField()
+    feedback_fr = models.TextField(blank=True)
+    rating = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback by {self.user.email} for {self.course.name if self.course else 'General'}"

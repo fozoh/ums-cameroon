@@ -1,3 +1,42 @@
+from .models import Message, DocumentUpload, Event, Feedback
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('sender', 'recipient', 'timestamp', 'read')
+
+@admin.register(DocumentUpload)
+class DocumentUploadAdmin(admin.ModelAdmin):
+    list_display = ('uploader', 'title', 'uploaded_at')
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title_en', 'title_fr', 'date', 'created_by', 'created_at')
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course', 'rating', 'created_at')
+from .models import Attendance, GradeAppeal, Schedule
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'course', 'date', 'present')
+
+@admin.register(GradeAppeal)
+class GradeAppealAdmin(admin.ModelAdmin):
+    list_display = ('student', 'course', 'status', 'created_at', 'updated_at')
+
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ('course', 'program', 'school', 'lecturer', 'day_of_week', 'start_time', 'end_time', 'location_en', 'location_fr')
+from .models import School, Program
+
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    list_display = ('name_en', 'name_fr', 'address_en', 'address_fr')
+
+@admin.register(Program)
+class ProgramAdmin(admin.ModelAdmin):
+    list_display = ('name_en', 'name_fr', 'type', 'school')
 from django.contrib import admin
 from .models import AuditLog, Notification, UserProfile
 

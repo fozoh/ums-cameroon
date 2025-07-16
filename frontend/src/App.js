@@ -13,19 +13,30 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import NotFound from './pages/NotFound';
+import SchoolDashboard from './pages/SchoolDashboard';
+import Messaging from './pages/Messaging';
+import DocumentUpload from './pages/DocumentUpload';
+import EventBoard from './pages/EventBoard';
+import FeedbackPage from './pages/FeedbackPage';
 
 // Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Sidebar from './components/Sidebar';
 
 // Layout Wrappers
 const ProtectedLayout = ({ children }) => {
   const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
+  const [lang] = React.useState(localStorage.getItem('lang') || 'en');
   if (!token) return <Navigate to="/login" replace />;
   return (
     <>
       <Navbar />
-      <main className="container mx-auto p-6">{children}</main>
+      <div style={{display:'flex'}}>
+        <Sidebar role={user?.role} lang={lang} />
+        <main style={{marginLeft:'220px',width:'100%',padding:'32px 24px'}}>{children}</main>
+      </div>
       <Footer />
     </>
   );
@@ -57,8 +68,14 @@ const AdminProtected = ({ children }) => {
 };
 
 function App() {
+  const [lang, setLang] = React.useState('en');
+  const user = JSON.parse(localStorage.getItem('user'));
   return (
     <Router>
+      <div className="lang-toggle" style={{textAlign:'right',padding:'10px'}}>
+        <button onClick={() => setLang('en')} disabled={lang==='en'}>EN</button>
+        <button onClick={() => setLang('fr')} disabled={lang==='fr'}>FR</button>
+      </div>
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
@@ -69,7 +86,7 @@ function App() {
           element={
             <ProtectedLayout>
               <StudentProtected>
-                <Dashboard />
+                <Dashboard lang={lang} />
               </StudentProtected>
             </ProtectedLayout>
           }
@@ -79,7 +96,7 @@ function App() {
           element={
             <ProtectedLayout>
               <StudentProtected>
-                <CourseRegistration />
+                <CourseRegistration lang={lang} />
               </StudentProtected>
             </ProtectedLayout>
           }
@@ -89,7 +106,7 @@ function App() {
           element={
             <ProtectedLayout>
               <StudentProtected>
-                <TranscriptRequest />
+                <TranscriptRequest lang={lang} />
               </StudentProtected>
             </ProtectedLayout>
           }
@@ -99,7 +116,7 @@ function App() {
           element={
             <ProtectedLayout>
               <StudentProtected>
-                <PaymentHistory />
+                <PaymentHistory lang={lang} />
               </StudentProtected>
             </ProtectedLayout>
           }
@@ -111,7 +128,7 @@ function App() {
           element={
             <ProtectedLayout>
               <LecturerProtected>
-                <LecturerDashboard />
+                <LecturerDashboard lang={lang} />
               </LecturerProtected>
             </ProtectedLayout>
           }
@@ -121,7 +138,7 @@ function App() {
           element={
             <ProtectedLayout>
               <LecturerProtected>
-                <UpdateMarks />
+                <UpdateMarks lang={lang} />
               </LecturerProtected>
             </ProtectedLayout>
           }
@@ -133,8 +150,58 @@ function App() {
           element={
             <ProtectedLayout>
               <AdminProtected>
-                <AdminDashboard />
+                <AdminDashboard lang={lang} />
               </AdminProtected>
+            </ProtectedLayout>
+          }
+        />
+
+        {/* School Dashboard */}
+        <Route
+          path="/school/dashboard/:schoolId"
+          element={
+            <ProtectedLayout>
+              <SchoolDashboard schoolId={user?.school} lang={lang} />
+            </ProtectedLayout>
+          }
+        />
+
+        {/* Messaging */}
+        <Route
+          path="/messages"
+          element={
+            <ProtectedLayout>
+              <Messaging userId={user?.id} lang={lang} />
+            </ProtectedLayout>
+          }
+        />
+
+        {/* Document Upload */}
+        <Route
+          path="/documents"
+          element={
+            <ProtectedLayout>
+              <DocumentUpload userId={user?.id} lang={lang} />
+            </ProtectedLayout>
+          }
+        />
+
+        {/* Event Board */}
+        <Route
+          path="/events"
+          element={
+            <ProtectedLayout>
+              <EventBoard lang={lang} />
+            </ProtectedLayout>
+          }
+        />
+
+        {/* Feedback/Survey */}
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedLayout>
+              <FeedbackPage userId={user?.id} lang={lang} />
             </ProtectedLayout>
           }
         />
@@ -144,7 +211,7 @@ function App() {
           path="/terms"
           element={
             <ProtectedLayout>
-              <TermsOfService />
+              <TermsOfService lang={lang} />
             </ProtectedLayout>
           }
         />
@@ -152,7 +219,7 @@ function App() {
           path="/privacy"
           element={
             <ProtectedLayout>
-              <PrivacyPolicy />
+              <PrivacyPolicy lang={lang} />
             </ProtectedLayout>
           }
         />
@@ -162,7 +229,7 @@ function App() {
           path="*"
           element={
             <ProtectedLayout>
-              <NotFound />
+              <NotFound lang={lang} />
             </ProtectedLayout>
           }
         />

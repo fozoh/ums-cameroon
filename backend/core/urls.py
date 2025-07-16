@@ -1,3 +1,14 @@
+from .views import LecturerAnalyticsView, DepartmentAnalyticsView, SchoolAnalyticsView
+    path('analytics/lecturer/<int:lecturer_id>/', LecturerAnalyticsView.as_view(), name='lecturer-analytics'),
+    path('analytics/department/<int:department_id>/', DepartmentAnalyticsView.as_view(), name='department-analytics'),
+    path('analytics/school/<int:school_id>/', SchoolAnalyticsView.as_view(), name='school-analytics'),
+from .views import StudentAnalyticsView
+    path('analytics/student/<int:student_id>/', StudentAnalyticsView.as_view(), name='student-analytics'),
+from .views import MessageListCreateView, DocumentUploadListCreateView, EventListCreateView, FeedbackListCreateView
+    path('messages/', MessageListCreateView.as_view(), name='message-list-create'),
+    path('documents/', DocumentUploadListCreateView.as_view(), name='document-list-create'),
+    path('events/', EventListCreateView.as_view(), name='event-list-create'),
+    path('feedback/', FeedbackListCreateView.as_view(), name='feedback-list-create'),
 from django.urls import path
 from .views import (
     LoginView,
@@ -12,6 +23,10 @@ from .views import (
     NotificationReadView,
     AuditLogListView
 )
+from .views import StudentRegistrationView, AttendanceListCreateView, GradeAppealListCreateView, ScheduleListView
+    path('attendance/', AttendanceListCreateView.as_view(), name='attendance-list-create'),
+    path('grade-appeal/', GradeAppealListCreateView.as_view(), name='grade-appeal-list-create'),
+    path('schedule/', ScheduleListView.as_view(), name='schedule-list'),
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
@@ -29,4 +44,5 @@ urlpatterns = [
     path('notifications/', NotificationListView.as_view(), name='notifications'),
     path('notifications/<int:pk>/read/', NotificationReadView.as_view(), name='notification_read'),
     path('auditlog/', AuditLogListView.as_view(), name='audit_log'),
+    path('register/student/', StudentRegistrationView.as_view(), name='student-register'),
 ]
