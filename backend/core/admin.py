@@ -1,3 +1,4 @@
+from django.contrib import admin
 from .models import Message, DocumentUpload, Event, Feedback
 
 @admin.register(Message)
@@ -37,7 +38,7 @@ class SchoolAdmin(admin.ModelAdmin):
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     list_display = ('name_en', 'name_fr', 'type', 'school')
-from django.contrib import admin
+
 from .models import AuditLog, Notification, UserProfile
 
 # AuditLog admin

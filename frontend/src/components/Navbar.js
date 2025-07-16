@@ -1,8 +1,10 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+
 import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  const role = user?.role;
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -19,10 +21,6 @@ const Navbar = () => {
         .then(data => setNotifications(data));
     }
   }, [user?.id]);
-
-
-  const user = JSON.parse(localStorage.getItem('user'));
-  const role = user?.role;
   return (
     <nav className="navbar" style={{background:'#007bff',color:'#fff',padding:'12px 24px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
       <div className="navbar-brand">

@@ -1,3 +1,4 @@
+// ...existing code...
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -18,6 +19,7 @@ import Messaging from './pages/Messaging';
 import DocumentUpload from './pages/DocumentUpload';
 import EventBoard from './pages/EventBoard';
 import FeedbackPage from './pages/FeedbackPage';
+import DepartmentList from './pages/DepartmentList';
 
 // Components
 import Navbar from './components/Navbar';
@@ -88,6 +90,17 @@ function App() {
               <StudentProtected>
                 <Dashboard lang={lang} />
               </StudentProtected>
+            </ProtectedLayout>
+          }
+        />
+        {/* Department List (Admin/Staff) */}
+        <Route
+          path="/departments"
+          element={
+            <ProtectedLayout>
+              <AdminProtected>
+                <DepartmentList lang={lang} />
+              </AdminProtected>
             </ProtectedLayout>
           }
         />

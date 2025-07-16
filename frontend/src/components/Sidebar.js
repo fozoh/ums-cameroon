@@ -18,6 +18,7 @@ const Sidebar = ({ role, lang }) => {
     { to: '/lecturer/dashboard', icon: <FaChalkboardTeacher />, label: lang === 'fr' ? 'Tableau Enseignant' : 'Lecturer Dashboard', roles: ['lecturer'] },
     { to: '/lecturer/update-marks', icon: <FaBook />, label: lang === 'fr' ? 'Notes' : 'Update Marks', roles: ['lecturer'] },
     { to: '/admin/dashboard', icon: <FaCog />, label: lang === 'fr' ? 'Admin' : 'Admin Dashboard', roles: ['director','vc','hod','dean'] },
+    { to: '/departments', icon: <FaUniversity />, label: lang === 'fr' ? 'Départements' : 'Departments', roles: ['director','vc','hod','dean'] },
     { to: `/school/dashboard/${JSON.parse(localStorage.getItem('user'))?.school || ''}`, icon: <FaUniversity />, label: lang === 'fr' ? 'École' : 'School Dashboard', roles: ['director','vc','hod','dean'] },
     { to: '/messages', icon: <FaEnvelope />, label: lang === 'fr' ? 'Messages' : 'Messages', roles: ['student','lecturer','director','vc','hod','dean'] },
     { to: '/documents', icon: <FaUpload />, label: lang === 'fr' ? 'Documents' : 'Documents', roles: ['student','lecturer','director','vc','hod','dean'] },
