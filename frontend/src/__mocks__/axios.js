@@ -1,6 +1,14 @@
 // __mocks__/axios.js
-export default {
+const mock = {
   post: jest.fn(() => Promise.resolve({ data: {} })),
   get: jest.fn(() => Promise.resolve({ data: {} })),
-  // Add other methods as needed
+  interceptors: {
+    request: { use: jest.fn() },
+    response: { use: jest.fn() },
+  },
 };
+
+mock.create = jest.fn(() => mock);
+
+export default mock;
+

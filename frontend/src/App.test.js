@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react';
 import App from './App';
 jest.mock('axios');
 
-test('renders login heading and button', () => {
+test('renders login form elements', () => {
   render(<App />);
-  // Check for the Login heading
-  const heading = screen.getByRole('heading', { name: /login/i });
-  expect(heading).toBeInTheDocument();
-  // Check for the Login button
+  // Check for username and password inputs and login button
+  const username = screen.getByPlaceholderText(/username/i);
+  const password = screen.getByPlaceholderText(/password/i);
   const button = screen.getByRole('button', { name: /login/i });
+
+  expect(username).toBeInTheDocument();
+  expect(password).toBeInTheDocument();
   expect(button).toBeInTheDocument();
 });
