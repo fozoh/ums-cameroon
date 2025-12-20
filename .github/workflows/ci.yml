@@ -54,3 +54,20 @@ jobs:
         working-directory: ./frontend
         run: |
           npm run build
+
+      - name: Security Audit (npm)
+        working-directory: ./frontend
+        run: |
+          npm audit --audit-level=moderate
+
+      - name: Check for hardcoded secrets
+        run: |
+          if grep -r --include="*.py" --include="*.js" \
+               --exclude-dir=node_modules --exclude-dir=.venv \
+               -iE "(password|api.?key|secret|token|aws.secret)" . 2>/dev/null | \
+               grep -v ".env.example" | grep -v ".pre-commit" | grep -v "Makefile"; then
+            echo "⚠️  Hardcoded secrets detected!"
+            exit 1
+          else
+            echo "✓ No hardcoded secrets found"
+          fi
