@@ -1,0 +1,9 @@
+[flake8]
+max-line-length = 120
+exclude = migrations,__pycache__,.venv,env
+ignore = 
+    E302,  # expected 2 blank lines
+    E701,  # multiple statements on one line
+    W291,  # trailing whitespace
+    W292,  # no newline at end of file
+    W293,  # blank line contains whitespace

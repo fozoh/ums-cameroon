@@ -26,11 +26,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
 
+      - name: Lint backend (flake8)
+        run: |
+          flake8 backend/students --max-line-length=120 --exclude=migrations
+
       - name: Run migrations & tests
         run: |
           cd backend
           python manage.py migrate --noinput
           python manage.py test --verbosity=2
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
