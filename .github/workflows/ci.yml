@@ -45,3 +45,7 @@ jobs:
         working-directory: ./frontend
         run: |
           CI=true npm test -- --watchAll=false
+      - name: Build frontend
+        working-directory: ./frontend
+        run: |
+          npm run build
